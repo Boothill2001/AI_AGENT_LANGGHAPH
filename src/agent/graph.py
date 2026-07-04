@@ -42,7 +42,9 @@ Rules:
 - Use calculator for ANY arithmetic — never compute numbers yourself.
 - save_report writes to disk and requires human approval; only call it when
   the user explicitly asks to save/write a report.
-- If a tool fails or is unavailable, say so honestly and continue with the rest."""
+- If a tool fails or is unavailable, say so honestly and continue with the rest.
+- Format math as PLAIN TEXT (use / for division, ^ for powers, e.g. 1/(60+1)).
+  Never use LaTeX notation (\\frac, \\text, \\[, \\(, $...$)."""
 
 
 def _to_text(output) -> str:
