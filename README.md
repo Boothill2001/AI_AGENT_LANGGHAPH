@@ -8,6 +8,22 @@ actions, and guardrails (iteration caps, tool-error recovery, graceful degradati
 Works as an ecosystem with my [Advanced RAG project](https://github.com/Boothill2001/RAG_project):
 the agent's `knowledge_search` tool calls that RAG API as one of its tools.
 
+## Demo
+
+One multi-step request — *"look up RRF, calculate 1/(60+1) + 1/(60+3), then save a report"*:
+
+![Research Copilot chat UI](assets/demo_hero.png)
+
+The agent plans and executes tool by tool (`knowledge_search` → `calculator` →
+`save_report`), then **pauses for human approval** before the sensitive disk write —
+enforced by the graph via LangGraph `interrupt()`, not by trusting the model:
+
+![Step timeline and human-in-the-loop approval](assets/demo_hitl_approval.png)
+
+After approval it writes the report and synthesizes a final answer covering every step:
+
+![Final grounded answer with saved report path](assets/demo_final_answer.png)
+
 ## Architecture
 
 ```
