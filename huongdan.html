@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hướng dẫn AI Agent — LangGraph + MCP — Nguyễn Minh Trí</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --surface: #ffffff; --ink: #221f2e; --muted: #5f5a70;
+    --line: #e5e1d9; --accent: #4a3e8f; --accent-soft: #e9e6f7;
+    --accent2: #b4552d; --accent2-soft: #f7e8df;
+    --code-bg: #1d1a2b; --code-ink: #dcd8ea;
+    --radius: 14px; --shadow: 0 2px 12px rgba(34,31,46,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16141f; --surface: #1f1c2b; --ink: #e8e6f0; --muted: #a29cb8;
+      --line: #2e2a40; --accent: #a99ef0; --accent-soft: #262040;
+      --accent2: #e08a5e; --accent2-soft: #3a251a;
+      --code-bg: #121019; --code-ink: #d5d1e6; --shadow: 0 2px 12px rgba(0,0,0,.3);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; font-size: 16.5px; }
+  .hero { background: linear-gradient(135deg, #4a3e8f 0%, #35306b 55%, #232042 100%); color: #f0eefa; padding: 64px 24px 56px; text-align: center; }
+  .hero h1 { font-size: clamp(1.8rem, 4.5vw, 2.9rem); font-weight: 800; letter-spacing: -.02em; }
+  .hero h1 em { font-style: italic; font-family: Georgia, serif; color: #ffd9a8; }
+  .hero p.sub { max-width: 740px; margin: 18px auto 0; font-size: 1.08rem; color: #cdc8e8; }
+  .badges { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); padding: 6px 16px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
+  .hero a.repo { display: inline-block; margin-top: 28px; background: #ffd9a8; color: #232042; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 999px; transition: transform .15s ease; }
+  .hero a.repo:hover { transform: translateY(-2px); }
+  nav { position: sticky; top: 0; z-index: 50; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); overflow-x: auto; white-space: nowrap; }
+  nav .inner { max-width: 980px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; }
+  nav a { display: inline-block; padding: 13px 14px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 600; border-bottom: 3px solid transparent; }
+  nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+  section { margin-top: 56px; scroll-margin-top: 70px; }
+  h2 { font-size: 1.7rem; font-weight: 800; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  h2 .num { background: var(--accent); color: #fff; width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; font-size: 1.05rem; }
+  h3 { margin: 26px 0 10px; font-size: 1.15rem; }
+  p { margin: 10px 0; }
+  p.lead { font-size: 1.06rem; color: var(--muted); }
+  a { color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 26px; box-shadow: var(--shadow); margin: 16px 0; }
+  .callout { border-left: 5px solid var(--accent); background: var(--accent-soft); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 20px; margin: 18px 0; }
+  .callout.warn { border-left-color: var(--accent2); background: var(--accent2-soft); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+  .feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow); }
+  .feature .icon { font-size: 1.7rem; }
+  .feature h4 { margin: 10px 0 6px; font-size: 1.03rem; }
+  .feature p { font-size: .93rem; color: var(--muted); margin: 0; }
+  pre { background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 18px 20px; overflow-x: auto; font-size: .88rem; line-height: 1.6; margin: 14px 0; font-family: Consolas, monospace; }
+  code.inline { background: var(--accent-soft); color: var(--accent); padding: 2px 7px; border-radius: 6px; font-size: .88em; font-family: Consolas, monospace; }
+  pre .c { color: #8a84a8; }
+  pre .k { color: #b8aef5; }
+  .pipe { display: flex; flex-direction: column; margin: 22px 0; }
+  .pipe-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .pipe-box { flex: 1; min-width: 220px; background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; padding: 14px 18px; text-align: center; }
+  .pipe-box.alt { border-color: var(--accent2); }
+  .pipe-box b { display: block; font-size: .98rem; }
+  .pipe-box span { font-size: .84rem; color: var(--muted); }
+  .pipe-arrow { text-align: center; font-size: 1.5rem; color: var(--accent); padding: 4px 0; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); font-size: .95rem; }
+  th { background: var(--accent); color: #fff; text-align: left; padding: 12px 16px; font-size: .9rem; }
+  td { padding: 11px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+  .tree { font-family: Consolas, monospace; font-size: .87rem; }
+  .tree .dir { color: var(--accent2); font-weight: 700; }
+  .tree .note { color: #8a84a8; }
+  .tree .star { color: #e5b100; }
+  ol.steps { counter-reset: step; list-style: none; margin: 20px 0; }
+  ol.steps > li { position: relative; padding: 4px 0 22px 58px; counter-increment: step; border-left: 2px dashed var(--line); margin-left: 20px; }
+  ol.steps > li:last-child { border-left-color: transparent; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: -21px; top: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; display: grid; place-items: center; }
+  ol.steps b.t { font-size: 1.04rem; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin: 12px 0; box-shadow: var(--shadow); overflow: hidden; }
+  summary { cursor: pointer; padding: 16px 20px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  summary::after { content: "＋"; color: var(--accent); font-size: 1.2rem; flex: none; }
+  details[open] summary::after { content: "－"; }
+  details .body { padding: 0 20px 18px; color: var(--muted); }
+  details .body strong { color: var(--ink); }
+  footer { text-align: center; padding: 40px 20px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 60px; font-size: .92rem; }
+  @media (max-width: 640px) { body { font-size: 15.5px; } .hero { padding: 44px 18px 40px; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>AI Agent — <em>LangGraph + MCP + Human-in-the-Loop</em></h1>
+  <p class="sub">Planner/Executor agent · Tools qua Model Context Protocol · Duyệt tay hành động nhạy cảm ·
+  Guardrails · Kết nối với RAG project thành một hệ sinh thái — giải thích cặn kẽ cho người mới.</p>
+  <div class="badges">
+    <span class="badge">🕸️ LangGraph</span>
+    <span class="badge">🔌 MCP Server thật</span>
+    <span class="badge">🤖 DeepSeek tool-calling</span>
+    <span class="badge">✋ Human-in-the-loop</span>
+    <span class="badge">🛡️ Guardrails</span>
+  </div>
+  <a class="repo" href="https://github.com/Boothill2001/AI_AGENT_LANGGHAPH" target="_blank">⭐ Xem source trên GitHub</a>
+</div>
+
+<nav><div class="inner">
+  <a href="#agent">1. Agent là gì</a>
+  <a href="#tech">2. Ba công nghệ</a>
+  <a href="#files">3. Từng file</a>
+  <a href="#flow">4. Luồng chạy</a>
+  <a href="#setup">5. Cài đặt</a>
+  <a href="#demo">6. Chạy demo</a>
+  <a href="#interview">7. Demo phỏng vấn</a>
+  <a href="#qa">8. Q&amp;A</a>
+  <a href="#bugs">9. Lỗi hay gặp</a>
+</div></nav>
+
+<main>
+
+<section id="agent">
+  <h2><span class="num">1</span> AI Agent là gì? (giải thích từ đầu)</h2>
+  <p class="lead">Chatbot thường chỉ <strong>trả lời</strong> — nhận câu hỏi, sinh text, xong.
+  <strong>Agent</strong> thì <strong>hành động</strong>: nó có bộ <em>tools</em> và tự quyết định
+  gọi tool nào, theo thứ tự nào, để hoàn thành yêu cầu phức tạp.</p>
+  <div class="card">
+    <p>Ví dụ yêu cầu: <em>"Tra cứu RRF là gì, tính 1/(60+1) + 1/(60+3), rồi lưu báo cáo."</em>
+    Chatbot chịu chết. Agent thì:</p>
+    <p>1️⃣ <strong>Plan</strong>: "cần 3 bước — tra cứu → tính toán → lưu file"<br>
+    2️⃣ Gọi <code class="inline">knowledge_search</code> → nhận kết quả<br>
+    3️⃣ Gọi <code class="inline">calculator</code> → nhận kết quả<br>
+    4️⃣ Gọi <code class="inline">save_report</code> → <strong>dừng chờ con người duyệt</strong> (ghi file = nhạy cảm)<br>
+    5️⃣ Tổng hợp câu trả lời cuối</p>
+  </div>
+  <div class="callout">💡 Vòng lặp <em>"suy nghĩ → gọi tool → nhận kết quả → suy nghĩ tiếp"</em>
+  chính là <strong>planner/executor loop</strong> — trái tim của mọi agent.</div>
+</section>
+
+<section id="tech">
+  <h2><span class="num">2</span> Ba công nghệ chính</h2>
+  <div class="grid">
+    <div class="feature"><div class="icon">🕸️</div><h4>LangGraph</h4>
+      <p>Dựng agent dạng <b>đồ thị trạng thái</b>: mỗi node là 1 bước (planner, tools), cạnh quyết định
+      đi đâu tiếp. Kiểm soát được, checkpoint được, pause/resume được — hơn hẳn vòng while tự viết.</p></div>
+    <div class="feature"><div class="icon">🔌</div><h4>MCP — Model Context Protocol</h4>
+      <p>Chuẩn mở kết nối LLM ↔ tools qua giao thức thống nhất — như <b>"USB-C cho AI"</b>.
+      Tool viết 1 lần trong MCP server, agent nào (kể cả Claude Desktop) cũng cắm vào dùng được.</p></div>
+    <div class="feature"><div class="icon">✋</div><h4>Human-in-the-loop</h4>
+      <p>Hành động nhạy cảm (ghi file, gửi mail, thanh toán) phải được <b>người duyệt</b>.
+      LangGraph <code>interrupt()</code> làm đồ thị đứng lại giữa chừng — model <b>không thể bypass</b>.</p></div>
+    <div class="feature"><div class="icon">🛡️</div><h4>Guardrails</h4>
+      <p>Cap số vòng lặp (chống chạy vô hạn), catch lỗi tool (không crash), calculator dùng AST whitelist
+      thay vì <code>eval()</code>, graceful khi RAG API offline.</p></div>
+  </div>
+</section>
+
+<section id="files">
+  <h2><span class="num">3</span> Từng file làm gì?</h2>
+  <div class="card tree">
+<pre style="background:transparent;color:inherit;padding:0;margin:0">
+AI_AGENT_LANGGHAPH/
+├── <span class="dir">mcp_server/</span>server.py    <span class="note">← MCP SERVER (FastMCP): 4 tools</span>
+│                              <span class="note">• knowledge_search → gọi RAG API (project 1!)</span>
+│                              <span class="note">• calculator → AST an toàn, không eval()</span>
+│                              <span class="note">• get_current_time · save_report (⚠ cần duyệt)</span>
+├── <span class="dir">src/agent/</span>
+│   ├── config.py           <span class="note">← Key DeepSeek, lệnh chạy MCP server, guardrails</span>
+│   ├── graph.py            <span class="star">⭐</span> <span class="note">← LangGraph: planner ↔ tools, interrupt() HITL</span>
+│   └── runtime.py          <span class="note">← Cầu nối sync/async cho Streamlit</span>
+├── app.py                  <span class="note">← Streamlit: timeline từng bước + nút Approve/Reject</span>
+├── cli.py                  <span class="note">← Bản terminal (dự phòng khi demo)</span>
+├── requirements.txt · .env.example · .gitignore
+└── <span class="dir">reports/</span>                <span class="note">← Nơi agent lưu báo cáo (không commit)</span>
+</pre>
+  </div>
+</section>
+
+<section id="flow">
+  <h2><span class="num">4</span> Luồng chạy một yêu cầu</h2>
+  <div class="pipe">
+    <div class="pipe-row"><div class="pipe-box" style="border-style:dashed"><b>❓ User hỏi</b><span>"Tra cứu RRF, tính toán, lưu báo cáo"</span></div></div>
+    <div class="pipe-arrow">↓</div>
+    <div class="pipe-row"><div class="pipe-box"><b>🧠 Planner (DeepSeek)</b><span>quyết định: gọi tool nào tiếp theo, hay đã đủ để trả lời?</span></div></div>
+    <div class="pipe-arrow">↓ tool_calls ↑ kết quả quay lại planner</div>
+    <div class="pipe-row"><div class="pipe-box alt"><b>🔧 Tool Executor</b><span>chạy tool qua MCP client → MCP server (stdio)</span></div></div>
+    <div class="pipe-arrow">↓ nếu tool nhạy cảm</div>
+    <div class="pipe-row"><div class="pipe-box alt" style="border-style:dashed"><b>✋ interrupt()</b><span>đồ thị ĐỨNG LẠI — chờ người bấm Approve/Reject rồi mới chạy tiếp</span></div></div>
+    <div class="pipe-arrow">↓ đủ thông tin</div>
+    <div class="pipe-row"><div class="pipe-box"><b>✅ Final answer</b><span>tổng hợp mọi bước đã làm, trung thực cả phần bị từ chối/lỗi</span></div></div>
+  </div>
+</section>
+
+<section id="setup">
+  <h2><span class="num">5</span> Cài đặt từng bước (Windows)</h2>
+  <ol class="steps">
+    <li><b class="t">Tạo + kích hoạt môi trường ảo</b>
+      <pre><span class="k">python -m venv .venv</span>
+<span class="k">.venv\Scripts\activate</span></pre></li>
+    <li><b class="t">Cài thư viện</b> — nhẹ, ~1 phút (không có PyTorch).
+      <pre><span class="k">pip install -r requirements.txt</span></pre></li>
+    <li><b class="t">Cấu hình key</b> — bắt buộc, agent cần LLM để suy nghĩ.
+      <pre><span class="k">copy .env.example .env</span>
+<span class="c"># mở .env, điền DEEPSEEK_KEY=sk-...</span></pre></li>
+    <li><b class="t">(Nên làm) Chạy RAG API của project 1</b> — để tool knowledge_search có backend.
+      <pre><span class="c"># terminal khác, tại D:\profile\RAG_project:</span>
+<span class="k">.venv\Scripts\activate</span>
+<span class="k">uvicorn api.main:app --port 8000</span></pre>
+      Không chạy cũng được — tool báo offline, agent vẫn xử lý phần còn lại (graceful).</li>
+  </ol>
+</section>
+
+<section id="demo">
+  <h2><span class="num">6</span> Chạy demo</h2>
+  <div class="card">
+    <pre><span class="k">streamlit run app.py</span>   <span class="c"># giao diện web</span>
+<span class="k">python cli.py</span>          <span class="c"># hoặc bản terminal</span></pre>
+  </div>
+  <div class="callout">✅ Thử câu "ăn tiền" (đủ 3 bước + human-in-the-loop):<br><br>
+  <code class="inline">Search the knowledge base for what Reciprocal Rank Fusion is, then calculate
+  1/(60+1) + 1/(60+3), and save a short report titled "RRF summary".</code><br><br>
+  Sẽ thấy: 🔧 knowledge_search → 🔧 calculator → ⚠️ <strong>dừng chờ duyệt</strong> save_report →
+  ✅ Approve → file xuất hiện trong <code class="inline">reports/</code> → câu trả lời cuối tóm tắt mọi bước.
+  Bấm ❌ Reject thì agent lịch sự giải thích bị từ chối.</div>
+</section>
+
+<section id="interview">
+  <h2><span class="num">7</span> 🎯 Kịch bản demo phỏng vấn (5 phút)</h2>
+  <ol class="steps">
+    <li><b class="t">Chỉ vào sidebar tools:</b> <em>"Tools không hard-code trong agent — chúng được serve qua
+      MCP server thật, agent load qua MCP client. Đây là chuẩn công nghiệp nối LLM với internal APIs."</em></li>
+    <li><b class="t">Gõ câu multi-step</b> → chỉ vào timeline: <em>"Planner/executor loop bằng LangGraph —
+      model tự quyết thứ tự tools, mỗi kết quả quay lại planner để re-plan."</em></li>
+    <li><b class="t">Đến đoạn dừng chờ duyệt:</b> <em>"Ghi file bị gate bằng LangGraph interrupt — đồ thị tự
+      đứng lại, model KHÔNG thể bypass. Human-in-the-loop mà production agent bắt buộc có."</em> → Approve.</li>
+    <li><b class="t">Mở file report</b> trong <code class="inline">reports/</code> cho họ xem kết quả thật.</li>
+    <li><b class="t">Chốt hạ hệ sinh thái:</b> <em>"knowledge_search đang gọi vào chính RAG API của project kia —
+      2 repo nối thành 1 hệ thống: RAG = knowledge layer, agent = orchestration layer."</em>
+      💥 Diễn sâu: tắt RAG API, hỏi lại — agent báo offline nhưng vẫn hoàn thành phần tính toán.</li>
+  </ol>
+</section>
+
+<section id="qa">
+  <h2><span class="num">8</span> Câu hỏi phỏng vấn thường gặp (bấm để mở)</h2>
+  <details><summary>LangGraph khác gì LangChain?</summary>
+    <div class="body"><p>LangChain là bộ toolkit (models, tools, prompts). LangGraph xây trên đó để dựng
+    <strong>agent có trạng thái</strong> dạng đồ thị: node/edge tường minh, checkpoint, pause/resume
+    (interrupt), replay. Vòng while tự viết không có mấy thứ đó.</p></div></details>
+  <details><summary>ReAct và planner/executor khác gì?</summary>
+    <div class="body"><p>ReAct đan xen "Thought → Action → Observation" từng bước — linh hoạt nhưng dễ lạc đề
+    với task dài. Planner/executor tách vai: lập kế hoạch rồi thực thi có kiểm soát. Project này là
+    planner/executor dạng vòng lặp: mỗi kết quả tool quay về planner để re-plan.</p></div></details>
+  <details><summary>MCP là gì, sao không viết tool thẳng vào agent?</summary>
+    <div class="body"><p>MCP là chuẩn mở kết nối LLM ↔ tools (stdio/HTTP). Tool viết thẳng vào agent thì
+    chết dính với agent đó; expose qua MCP server thì <strong>viết 1 lần, mọi client dùng được</strong>
+    (kể cả Claude Desktop), schema chuẩn, quản lý permission tập trung.</p></div></details>
+  <details><summary>Làm sao chặn agent chạy vô hạn / phá hoại?</summary>
+    <div class="body"><p>Nhiều lớp: (1) cap số vòng lặp — quá hạn ép trả lời ngay; (2) human-in-the-loop cho
+    hành động nhạy cảm; (3) tool lỗi được catch trả message thay vì crash; (4) calculator dùng AST whitelist
+    chứ không eval(); (5) recursion_limit của LangGraph là chốt chặn cuối.</p></div></details>
+  <details><summary>Multi-agent thật thì khác gì demo này?</summary>
+    <div class="body"><p>Cùng nguyên lý nhưng nhiều planner chuyên biệt (researcher, writer, reviewer...)
+    giao tiếp qua state chung hoặc message passing; thêm supervisor/routing pattern. LangGraph hỗ trợ
+    subgraph — kiến trúc demo mở rộng thẳng lên được.</p></div></details>
+  <details><summary>Đưa lên production cần thêm gì?</summary>
+    <div class="body"><p>Observability (trace từng tool call — LangSmith/OpenTelemetry), eval suite cho agent
+    behavior, timeout + retry cho tool, auth cho MCP server, checkpoint bền (Postgres thay MemorySaver),
+    rate limiting và cost tracking.</p></div></details>
+</section>
+
+<section id="bugs">
+  <h2><span class="num">9</span> Lỗi thường gặp &amp; cách sửa</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Lỗi</th><th>Cách sửa</th></tr>
+    <tr><td>Agent báo knowledge base offline</td><td>Chạy RAG API: <code class="inline">cd ..\RAG_project</code> → <code class="inline">uvicorn api.main:app --port 8000</code></td></tr>
+    <tr><td><code class="inline">AuthenticationError</code></td><td>Kiểm tra <code class="inline">DEEPSEEK_KEY</code> trong .env (chỉ chuỗi sk-..., không kèm chú thích)</td></tr>
+    <tr><td>Streamlit treo lúc khởi động</td><td>Lần đầu khởi động MCP server mất vài giây; F5 nếu quá 30s</td></tr>
+    <tr><td><code class="inline">ModuleNotFoundError: agent</code></td><td>Chạy từ sai thư mục — phải đứng ở thư mục gốc project</td></tr>
+  </table>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><strong>Nguyễn Minh Trí</strong> — Senior AI Engineer (GenAI / LLM Applications)</p>
+  <p>📧 minhtri.cm2001@gmail.com · <a href="https://github.com/Boothill2001/AI_AGENT_LANGGHAPH">AI_AGENT_LANGGHAPH</a> · <a href="https://github.com/Boothill2001/RAG_project">RAG_project</a></p>
+  <p style="margin-top:8px">Bộ đôi demo: RAG = knowledge layer · Agent = orchestration layer 🚀</p>
+</footer>
+
+</body>
+</html>

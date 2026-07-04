@@ -1,0 +1,16 @@
+# Secrets — never commit
+.env
+
+# Runtime artifacts
+reports/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
