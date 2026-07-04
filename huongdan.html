@@ -102,6 +102,7 @@
 </div>
 
 <nav><div class="inner">
+  <a href="#start" style="color:var(--accent2);font-weight:800">⚡ MỞ HỆ THỐNG</a>
   <a href="#agent">1. Agent là gì</a>
   <a href="#tech">2. Ba công nghệ</a>
   <a href="#files">3. Từng file</a>
@@ -114,6 +115,71 @@
 </div></nav>
 
 <main>
+
+<!-- ================= ⚡ MỞ HỆ THỐNG ================= -->
+<section id="start" style="margin-top:32px">
+  <h2><span class="num" style="background:var(--accent2)">⚡</span> MỞ HỆ THỐNG TRƯỚC PHỎNG VẤN (đọc mục này là đủ!)</h2>
+
+  <div class="callout warn">
+    ⏰ <strong>Làm trước giờ phỏng vấn 10–15 phút.</strong> Lần đầu khởi động API mất ~30–60s
+    (load model + warmup) — đừng để nhà tuyển dụng ngồi chờ.
+  </div>
+
+  <h3>🚀 Cách 1 — Bấm đúp 1 file (khuyên dùng, khỏi nhớ lệnh)</h3>
+  <div class="card">
+    <p>Mở thư mục <code class="inline">D:\profile\AI_AGENT_LANGGHAPH</code> → bấm đúp file:</p>
+    <pre><span class="k">start_demo.bat</span></pre>
+    <p>File này tự mở <strong>3 cửa sổ</strong> theo đúng thứ tự: RAG API (chờ 15s) → RAG UI → Agent UI.
+    Đóng cửa sổ nào thì service đó tắt. Xong chỉ cần mở trình duyệt.</p>
+  </div>
+
+  <h3>⌨️ Cách 2 — Gõ tay (khi cần kiểm soát từng phần)</h3>
+  <div class="card">
+    <p><strong>Terminal 1 — RAG API</strong> (bắt buộc, mở ĐẦU TIÊN):</p>
+    <pre><span class="k">cd D:\profile\RAG_project</span>
+<span class="k">.venv\Scripts\activate</span>
+<span class="k">uvicorn api.main:app --port 8000</span>
+<span class="c"># Chờ thấy "Application startup complete" mới mở tiếp cái khác</span></pre>
+    <p><strong>Terminal 2 — RAG chat UI</strong> (demo project 1):</p>
+    <pre><span class="k">cd D:\profile\RAG_project</span>
+<span class="k">.venv\Scripts\activate</span>
+<span class="k">streamlit run ui/app.py --server.port 8501</span></pre>
+    <p><strong>Terminal 3 — Agent UI</strong> (demo project 2, demo chính):</p>
+    <pre><span class="k">cd D:\profile\AI_AGENT_LANGGHAPH</span>
+<span class="k">.venv\Scripts\activate</span>
+<span class="k">streamlit run app.py --server.port 8502</span></pre>
+  </div>
+
+  <h3>✅ Checklist kiểm tra hệ thống sống (30 giây)</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Mở địa chỉ</th><th>Phải thấy</th></tr>
+    <tr><td><a href="http://localhost:8000/health">localhost:8000/health</a></td><td><code class="inline">{"status":"ok","index_loaded":true,"llm_configured":true}</code></td></tr>
+    <tr><td><a href="http://localhost:8000/docs">localhost:8000/docs</a></td><td>Swagger UI của RAG API (khoe FastAPI)</td></tr>
+    <tr><td><a href="http://localhost:8501">localhost:8501</a></td><td>RAG chat — sidebar báo <strong>"API: online"</strong> ✅</td></tr>
+    <tr><td><a href="http://localhost:8502">localhost:8502</a></td><td>Agent chat — sidebar liệt kê 4 tools 🔧</td></tr>
+  </table>
+  </div>
+
+  <div class="callout">
+    🎯 <strong>Trước khi vào phòng phỏng vấn:</strong> hỏi thử Agent 1 câu
+    (<code class="inline">What time is it?</code> là nhanh nhất) để chắc DeepSeek key còn sống —
+    rồi bấm <strong>🗑️ New conversation</strong> cho màn hình sạch sẽ. Mở sẵn 4 tab trình duyệt
+    theo bảng trên + tab GitHub 2 repo. Xong — hít thở, ông làm được! 💪
+  </div>
+
+  <h3>🔧 Lỗi phút chót & cách cứu</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Triệu chứng</th><th>Cứu nhanh</th></tr>
+    <tr><td>Port 8000/8501/8502 báo đã bị chiếm</td><td>Đóng hết cửa sổ terminal cũ rồi chạy lại <code class="inline">start_demo.bat</code>; hoặc đổi số port trong lệnh</td></tr>
+    <tr><td>Agent UI treo "Starting MCP server..."</td><td>Bình thường 5–10s lần đầu; quá 30s thì F5 trình duyệt</td></tr>
+    <tr><td>RAG UI báo "API offline"</td><td>Terminal 1 chưa chạy xong — chờ dòng "Application startup complete"</td></tr>
+    <tr><td>Trả lời hiện "Extractive fallback"</td><td>Key DeepSeek lỗi/hết tiền — <strong>vẫn demo được!</strong> Nói luôn: "đây là graceful degradation em thiết kế"</td></tr>
+    <tr><td>Mọi thứ hỏng không rõ vì sao</td><td>Backup: <code class="inline">python cli.py</code> trong AI_AGENT_LANGGHAPH — bản terminal không cần trình duyệt</td></tr>
+  </table>
+  </div>
+</section>
 
 <section id="agent">
   <h2><span class="num">1</span> AI Agent là gì? (giải thích từ đầu)</h2>
